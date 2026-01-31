@@ -71,7 +71,7 @@
                 </div>
 
                 <div class="card-footer text-end">
-                    <a href="{{ route('admin.inventory.supplier') }}"
+                    <a href="{{ route('admin.inventory.supplier.index') }}"
                        class="btn btn-outline-secondary">
                         Cancel
                     </a>

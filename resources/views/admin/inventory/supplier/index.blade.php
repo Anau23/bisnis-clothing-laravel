@@ -350,7 +350,7 @@
 
 @section('scripts')
 <script>
-    var supplierStatsData = {{ supplier_stats|tojson|safe }};
+    var supplierStatsData = @json($supplier_stats);
     let currentModal = null;
     let supplierData = {};
 

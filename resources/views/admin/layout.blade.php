@@ -779,7 +779,7 @@
                         </li>
                         <li>
                             <a class="dropdown-item {{ request()->routeIs('admin.inventory.supplier') ? 'active' : '' }}"
-                               href="{{ route('admin.inventory.supplier') }}">
+                               href="{{ route('admin.inventory.supplier.index') }}">
                                 <i class="bi bi-truck me-2"></i> Supplier Management
                             </a>
                         </li>

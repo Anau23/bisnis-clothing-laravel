@@ -5,6 +5,8 @@ use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Cashier\CashierController;
 use App\Http\Controllers\Admin\CashDrawerController;
+use App\Http\Controllers\Admin\SupplierController;
+use App\Http\Controllers\Admin\UserController;
 
 /*
 |--------------------------------------------------------------------------
@@ -56,15 +58,22 @@ Route::middleware(['auth', 'admin'])
         Route::get('/inventory/summary', [AdminController::class, 'summary'])
             ->name('inventory.summary');
 
-        // sementara dummy
-        Route::get('/inventory/supplier', fn () => view('admin.inventory.supplier.index'))
-            ->name('inventory.supplier');
+        Route::get('/inventory/supplier', [SupplierController::class, 'index'])
+            ->name('inventory.supplier.index');
+
+        Route::get('/inventory/supplier/create', [SupplierController::class, 'create'])
+            ->name('inventory.supplier.create');
+
 
         Route::get('/cashdrawer', [CashDrawerController::class, 'index'])
         ->name('cashdrawer');
 
-        Route::get('/users', fn () => view('admin.users.index'))
+        Route::get('/users', [UserController::class, 'index'])
             ->name('users');
+
+        Route::post('/users', [UserController::class, 'store'])
+        ->name('users.store');
+
     });
 
 

@@ -11,19 +11,26 @@ class User extends Authenticatable
 
     protected $table = 'users';
 
+    public $timestamps = false;
+
     protected $fillable = [
         'username',
         'email',
-        'password',
+        'password_hash',
         'role',
         'is_active',
     ];
 
     protected $hidden = [
-        'password',
+        'password_hash',
         'remember_token',
     ];
 
+    public function getAuthPassword()
+    {
+        return $this->password_hash;
+    }
+    
     public function isAdmin(): bool
     {
         return $this->role === 'admin';

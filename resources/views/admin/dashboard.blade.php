@@ -849,22 +849,24 @@
 @section('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<script>
-/* ================================ */
-/* === SEMUA JAVASCRIPT ASLI */
-/* === TIDAK DIUBAH LOGIKANYA     */
-/* ================================ */
-
 function exportExcelReport() {
     let url = `/admin/reports/export-excel?period=${currentPeriod}`;
+
     if (currentPeriod === 'custom') {
-        const s = startDate.value;
-        const e = endDate.value;
-        url += `&start_date=${s}&end_date=${e}`;
+        const startDate = document.getElementById('start-date').value;
+        const endDate = document.getElementById('end-date').value;
+
+        if (!startDate || !endDate) {
+            alert('Please select start & end date');
+            return;
+        }
+        url += `&start_date=${startDate}&end_date=${endDate}`;
     }
+
     window.location.href = url;
 }
 </script>
+
 
 <script>
 /* ================= TIMOR LESTE TIMEZONE HELPER ================= */
@@ -982,7 +984,7 @@ function convertToTimorLeste(dateString) {
             resetStatsLoading();
             
             // API URL
-            let apiUrl = `/api/admin/dashboard/filter?period=${period}&_t=${Date.now()}`;
+            let apiUrl = `{{ route('admin.dashboard.data') }}?period=${period}&_t=${Date.now()}`;
             
             // For custom period, add date parameters
             if (period === 'custom') {
@@ -1252,7 +1254,7 @@ function convertToTimorLeste(dateString) {
         showLoading(true, `Loading data from ${startDate} to ${endDate}...`);
         
         try {
-            const apiUrl = `/api/admin/dashboard/filter?period=custom&start_date=${startDate}&end_date=${endDate}&_t=${Date.now()}`;
+            const apiUrl = `{{ route('admin.dashboard.data') }}?period=custom...`;
             console.log('🌐 Custom API Request:', apiUrl);
             
             const response = await fetch(apiUrl);
@@ -1303,9 +1305,13 @@ function convertToTimorLeste(dateString) {
         if (data.charts && data.charts.labels && data.charts.labels.length > 0) {
             updateCharts(data.charts);
         } else {
-            console.warn('⚠️ No chart data or empty data');
-            showChartErrors();
+            console.info('ℹ️ Chart data empty (valid state)');
+            hideChartErrors();
+        } else {
+            hideChartErrors();
+            document.getElementById('revenue-profit-chart-empty').style.display = 'block';
         }
+
         
         // Update tables
         if (data.tables) {

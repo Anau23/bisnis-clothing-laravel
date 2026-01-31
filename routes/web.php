@@ -45,6 +45,8 @@ Route::middleware(['auth', 'admin'])
 
         Route::get('/dashboard', [AdminController::class, 'dashboard'])
             ->name('dashboard');
+        Route::get('/dashboard/data', [AdminController::class, 'dashboardData'])
+            ->name('dashboard.data');
 
         Route::get('/items', [AdminController::class, 'items'])
             ->name('items');
@@ -63,6 +65,10 @@ Route::middleware(['auth', 'admin'])
 
         Route::get('/inventory/supplier/create', [SupplierController::class, 'create'])
             ->name('inventory.supplier.create');
+        Route::get('/admin/reports/export-excel', function () {
+            return response('Export Excel belum diimplementasikan', 200);
+        })->name('admin.reports.export');
+
 
 
         Route::get('/cashdrawer', [CashDrawerController::class, 'index'])

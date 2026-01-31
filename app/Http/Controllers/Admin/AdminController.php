@@ -48,7 +48,9 @@ class AdminController extends Controller
 
     public function purchase()
     {
-        return view('admin.inventory.purchase.index');
+        $purchase_orders = collect(); // default aman
+
+        return view('admin.inventory.purchase.index', compact('purchase_orders'));
     }
 
     public function report()

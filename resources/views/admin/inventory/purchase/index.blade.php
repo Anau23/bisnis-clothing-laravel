@@ -40,9 +40,10 @@
                         </ul>
                     </div>
 
-                    <a href="{{ route('admin.inventory.purchase.create') }}" class="btn btn-primary px-4">
-                        <i class="fas fa-plus-circle me-2"></i> Create Purchase Order
-                    </a>
+                    <button class="btn btn-primary" disabled>
+                        Create Purchase (Coming Soon)
+                    </button>
+
                 </div>
             </div>
         </div>

@@ -767,7 +767,7 @@
                     <ul class="dropdown-menu">
                         <li>
                             <a class="dropdown-item {{ request()->routeIs('admin.inventory.purchase') ? 'active' : '' }}"
-                               href="{{ route('admin.inventory.purchase') }}">
+                               href="{{ route('admin.inventory.purchase.index') }}">
                                 <i class="bi bi-cart-plus me-2"></i> Purchase Orders
                             </a>
                         </li>

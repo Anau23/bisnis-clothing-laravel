@@ -883,8 +883,8 @@
             </div>
 
             <div class="nav-item">
-                <a href="{{ route('cashier.dashboard') }}"
-                   class="nav-link {{ Route::currentRouteName() === 'cashier.activity' ? 'active' : '' }}">
+                <a href="{{ route('cashier.activity') }}"
+                class="nav-link {{ Route::currentRouteName() === 'cashier.activity' ? 'active' : '' }}">
                     <i class="bi bi-clock-history"></i>
                     <span class="nav-text">Aktivitas</span>
                 </a>

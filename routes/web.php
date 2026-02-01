@@ -113,4 +113,7 @@ Route::middleware(['auth'])
 
         Route::get('/activity', [CashierController::class, 'activity'])
             ->name('activity');
+        Route::get('/pos', [CashierController::class, 'pos'])
+            ->name('pos');
+
     });

@@ -1,3 +1,8 @@
+
+
+Berikut adalah kode yang telah diperbarui. Saya telah mengubah format route dari `route('cashier_pos')` menjadi `route('cashier.pos')` sesuai instruksi.
+
+```blade
 @extends('cashier.layout')
 
 @section('title', 'Dashboard Kasir - Bisnis Clothing')
@@ -6,11 +11,12 @@
 
 @section('content')
 <div class="mb-4 md:mb-6">
-    <p class="page-subtitle">Selamat datang, {{ user.username }}! Ringkasan aktivitas hari ini.</p>
-</div>
+    <p class="page-subtitle">
+        Selamat datang, {{ auth()->user()->username }}! Ringkasan aktivitas hari ini.
+    </p>
 
 <!-- Shift Status Section -->
-<div class="card border-0 shadow-lg mb-4" style="background: linear-gradient(135deg, var(--navy-dark), var(--royal-blue));">
+<div class="card border-0 shadow-lg mb-4 text-white" style="background: var(--blue-gradient);">
     <div class="card-body p-4">
         <div class="row align-items-center">
             <div class="col-lg-8 mb-3 mb-lg-0">
@@ -24,9 +30,9 @@
                         <h3 class="h4 mb-1 text-white">Shift Saat Ini</h3>
                         <p class="mb-0 text-white/80">
                             Status: <span id="shiftStatusDisplay" class="fw-bold">
-                                {% if cash_drawer and cash_drawer.status == 'open' %}Aktif
-                                {% elif cash_drawer and cash_drawer.status == 'completed' %}Selesai
-                                {% else %}Belum Dimulai{% endif %}
+                                @if($cash_drawer && $cash_drawer->status == 'open') Aktif
+                                @elseif($cash_drawer && $cash_drawer->status == 'completed') Selesai
+                                @else Belum Dimulai @endif
                             </span>
                         </p>
                     </div>
@@ -36,14 +42,14 @@
                     <div class="col-md-3 col-6">
                         <div class="bg-white/10 rounded p-2 border border-white/20">
                             <p class="mb-1 text-white/80 small">Kasir</p>
-                            <p class="mb-0 fw-medium text-white small">{{ user.username }}</p>
+                            <p class="mb-0 fw-medium text-white small">{{ $user->username ?? '-' }}</p>
                         </div>
                     </div>
                     <div class="col-md-3 col-6">
                         <div class="bg-white/10 rounded p-2 border border-white/20">
                             <p class="mb-1 text-white/80 small">Shift #</p>
                             <p id="shiftNumberDisplay" class="mb-0 fw-medium text-white small">
-                                {% if cash_drawer %}{{ cash_drawer.drawer_number }}{% else %}-{% endif %}
+                                @if($cash_drawer) {{ $cash_drawer->drawer_number }} @else - @endif
                             </p>
                         </div>
                     </div>
@@ -51,18 +57,18 @@
                         <div class="bg-white/10 rounded p-2 border border-white/20">
                             <p class="mb-1 text-white/80 small">Transaksi</p>
                             <p id="todayTransactionsDisplay" class="mb-0 fw-medium text-white small">
-                                {% if total_transactions %}{{ total_transactions }}{% else %}0{% endif %}
+                                @if($total_transactions) {{ $total_transactions }} @else 0 @endif
                         </div>
                     </div>
                     <div class="col-md-3 col-6">
                         <div class="bg-white/10 rounded p-2 border border-white/20">
                             <p class="mb-1 text-white/80 small">Durasi</p>
                             <p id="shiftDurationDisplay" class="mb-0 fw-medium text-white small">
-    {% if cash_drawer and cash_drawer.duration_display %}
-        {{ cash_drawer.duration_display }}
-    {% else %}
-        -
-    {% endif %}
+                                @if($cash_drawer && $cash_drawer->duration_display)
+                                    {{ $cash_drawer->duration_display }}
+                                @else
+                                    -
+                                @endif
 </p>
                         </div>
                     </div>
@@ -75,7 +81,7 @@
                         <div>
                             <p class="mb-1 text-white/80 small">Saldo Tunai</p>
                             <p id="cashBalanceDisplay" class="h4 mb-0 fw-bold text-white">
-                                $ {% if cash_drawer %}{{ "{:,.0f}".format(cash_drawer.opening_balance) }}{% else %}0{% endif %}
+                                $ @if($cash_drawer) {{ number_format($cash_drawer->opening_balance, 0, ',', '.') }} @else 0 @endif
                             </p>
                         </div>
                         <div class="ms-2">
@@ -89,24 +95,24 @@
                 
                 <div class="d-grid gap-2">
                     <!-- Button Mulai Shift - Hanya muncul saat shift belum berjalan -->
-                    {% if not cash_drawer or cash_drawer.status != 'open' %}
+                    @if(!$cash_drawer || $cash_drawer->status != 'open')
                     <button id="startShiftBtn" 
                             class="btn btn-light fw-bold d-flex align-items-center justify-content-center py-2"
                             onclick="openStartShiftModal()">
                         <i class="fas fa-play-circle me-2"></i>
                         Mulai Shift
                     </button>
-                    {% endif %}
+                    @endif
                     
                     <!-- Button Shift Berjalan - Hanya muncul saat shift aktif -->
-                    {% if cash_drawer and cash_drawer.status == 'open' %}
+                    @if($cash_drawer && $cash_drawer->status == 'open')
                     <button id="activeShiftBtn" 
                             class="btn btn-success fw-bold d-flex align-items-center justify-content-center py-2"
-                            onclick="window.location.href='{{ url_for('cashier_pos') }}'">
+                            onclick="window.location.href='{{ route('cashier.pos') }}'">
                         <i class="fas fa-sync-alt me-2"></i>
                         Shift Berjalan
                     </button>
-                    {% endif %}
+                    @endif
                 </div>
             </div>
         </div>
@@ -123,7 +129,7 @@
                     <div class="flex-grow-1">
                         <p class="text-muted small mb-1">Total Penjualan</p>
                         <p id="totalSalesDisplay" class="h4 mb-0 fw-bold">
-                            $ {% if total_sales %}{{ "{:,.0f}".format(total_sales) }}{% else %}0{% endif %}
+                            $ @if($total_sales) {{ number_format($total_sales, 0, ',', '.') }} @else 0 @endif
                         </p>
                     </div>
                     <div class="ms-2 bg-primary bg-opacity-10 p-2 rounded-circle">
@@ -132,11 +138,11 @@
                 </div>
                 <div class="mt-3">
                     <p id="salesStatusDisplay" class="text-muted small mb-0">
-                        {% if cash_drawer and cash_drawer.status == 'open' %}
+                        @if($cash_drawer && $cash_drawer->status == 'open')
                         <i class="fas fa-sync-alt me-1"></i> Shift aktif
-                        {% else %}
+                        @else
                         <i class="fas fa-minus me-1"></i> Shift belum dimulai
-                        {% endif %}
+                        @endif
                     </p>
                 </div>
             </div>
@@ -151,7 +157,7 @@
                     <div class="flex-grow-1">
                         <p class="text-muted small mb-1">Total Transaksi</p>
                         <p id="totalTransactionsDisplay" class="h4 mb-0 fw-bold">
-                            {% if total_transactions %}{{ total_transactions }}{% else %}0{% endif %}
+                            @if($total_transactions) {{ $total_transactions }} @else 0 @endif
                         </p>
                     </div>
                     <div class="ms-2 bg-success bg-opacity-10 p-2 rounded-circle">
@@ -160,11 +166,11 @@
                 </div>
                 <div class="mt-3">
                     <p id="transactionsStatusDisplay" class="text-muted small mb-0">
-                        {% if cash_drawer and cash_drawer.status == 'open' %}
+                        @if($cash_drawer && $cash_drawer->status == 'open')
                         <i class="fas fa-sync-alt me-1"></i> Shift aktif
-                        {% else %}
+                        @else
                         <i class="fas fa-minus me-1"></i> Shift belum dimulai
-                        {% endif %}
+                        @endif
                     </p>
                 </div>
             </div>
@@ -179,7 +185,7 @@
                     <div class="flex-grow-1">
                         <p class="text-muted small mb-1">Rata-rata Transaksi</p>
                         <p id="averageTransactionDisplay" class="h4 mb-0 fw-bold">
-                            $ {% if total_transactions and total_sales %}{{ "{:,.0f}".format(total_sales / total_transactions) }}{% else %}0{% endif %}
+                            $ @if($total_transactions && $total_sales) {{ number_format($total_sales / $total_transactions, 0, ',', '.') }} @else 0 @endif
                         </p>
                     </div>
                     <div class="ms-2 bg-primary bg-opacity-10 p-2 rounded-circle">
@@ -188,11 +194,11 @@
                 </div>
                 <div class="mt-3">
                     <p id="averageStatusDisplay" class="text-muted small mb-0">
-                        {% if cash_drawer and cash_drawer.status == 'open' %}
+                        @if($cash_drawer && $cash_drawer->status == 'open')
                         <i class="fas fa-sync-alt me-1"></i> Shift aktif
-                        {% else %}
+                        @else
                         <i class="fas fa-minus me-1"></i> Shift belum dimulai
-                        {% endif %}
+                        @endif
                     </p>
                 </div>
             </div>
@@ -207,7 +213,7 @@
                     <div class="flex-grow-1">
                         <p class="text-muted small mb-1">Item Terjual</p>
                         <p id="itemsSoldDisplay" class="h4 mb-0 fw-bold">
-                            {% if total_items %}{{ total_items }}{% else %}0{% endif %}
+                            @if($total_items) {{ $total_items }} @else 0 @endif
                         </p>
                     </div>
                     <div class="ms-2 bg-warning bg-opacity-10 p-2 rounded-circle">
@@ -216,11 +222,11 @@
                 </div>
                 <div class="mt-3">
                     <p id="itemsStatusDisplay" class="text-muted small mb-0">
-                        {% if cash_drawer and cash_drawer.status == 'open' %}
+                        @if($cash_drawer && $cash_drawer->status == 'open')
                         <i class="fas fa-sync-alt me-1"></i> Shift aktif
-                        {% else %}
+                        @else
                         <i class="fas fa-minus me-1"></i> Shift belum dimulai
-                        {% endif %}
+                        @endif
                     </p>
                 </div>
             </div>
@@ -237,14 +243,14 @@
             <div class="card-header bg-white border-0 py-3">
                 <div class="d-flex justify-content-between align-items-center">
                     <h5 class="card-title mb-0 fw-semibold">Transaksi Terbaru</h5>
-                    <a href="{{ url_for('cashier_activity') }}" class="btn btn-sm btn-outline-primary">
+                    <a href="#" class="btn btn-sm btn-outline-primary">
                         Lihat Semua <i class="fas fa-arrow-right ms-1"></i>
                     </a>
                 </div>
             </div>
             <div class="card-body p-0">
                 <div id="recentTransactionsContainer" class="p-3">
-                    {% if cash_drawer and cash_drawer.status == 'open' and recent_transactions %}
+                    @if($cash_drawer && $cash_drawer->status == 'open' && $recent_transactions && count($recent_transactions) > 0)
                     <div class="table-responsive">
                         <table class="table table-sm table-hover mb-0">
                             <thead>
@@ -256,33 +262,33 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for transaction in recent_transactions[:5] %}
+                                @foreach($recent_transactions->take(5) as $transaction)
                                 <tr class="small">
-                                    <td class="fw-medium">{{ transaction.transaction_code }}</td>
+                                    <td class="fw-medium">{{ $transaction->transaction_code }}</td>
                                     <!-- WAKTU TIMOR-LESTE -->
-                                    <td class="text-muted" data-utc-time="{{ transaction.created_at.isoformat() if transaction.created_at else '' }}">
-                                        {{ transaction.created_at.strftime('%H:%M') if transaction.created_at else '-' }}
+                                    <td class="text-muted" data-utc-time="{{ $transaction->created_at ? $transaction->created_at->toIso8601String() : '' }}">
+                                        {{ $transaction->created_at ? $transaction->created_at->format('H:i') : '-' }}
                                     </td>
-                                    <td>{{ transaction.items_count|default(0) }} items</td>
-                                    <td class="fw-bold text-success">$ {{ "{:,.0f}".format(transaction.total_amount) if transaction.total_amount else '0' }}</td>
+                                    <td>{{ $transaction->items_count ?? 0 }} items</td>
+                                    <td class="fw-bold text-success">$ {{ $transaction->total_amount ? number_format($transaction->total_amount, 0, ',', '.') : '0' }}</td>
                                 </tr>
-                                {% endfor %}
+                                @endforeach
                             </tbody>
                         </table>
                     </div>
-                    {% elif cash_drawer and cash_drawer.status == 'open' %}
+                    @elseif($cash_drawer && $cash_drawer->status == 'open')
                     <div class="text-center py-5">
                         <i class="fas fa-shopping-cart text-muted mb-3 fs-1"></i>
                         <p class="text-muted">Belum ada transaksi</p>
                         <p class="text-muted small">Mulai transaksi pertama Anda</p>
                     </div>
-                    {% else %}
+                    @else
                     <div class="text-center py-5">
                         <i class="fas fa-clock text-muted mb-3 fs-1"></i>
                         <p class="text-muted">Shift belum dimulai</p>
                         <p class="text-muted small">Mulai shift untuk melihat transaksi</p>
                     </div>
-                    {% endif %}
+                    @endif
                 </div>
             </div>
         </div>
@@ -300,12 +306,12 @@
                     <div class="d-flex align-items-center justify-content-between mb-3">
                         <div>
                             <p class="text-muted small mb-1">Shift Status</p>
-                            <p id="shiftSummaryStatus" class="h3 fw-bold mb-0 {% if cash_drawer and cash_drawer.status == 'open' %}text-success{% else %}text-danger{% endif %}">
-                                {% if cash_drawer and cash_drawer.status == 'open' %}Aktif{% else %}Tidak Aktif{% endif %}
+                            <p id="shiftSummaryStatus" class="h3 fw-bold mb-0 @if($cash_drawer && $cash_drawer->status == 'open') text-success @else text-danger @endif">
+                                @if($cash_drawer && $cash_drawer->status == 'open') Aktif @else Tidak Aktif @endif
                             </p>
                         </div>
-                        <div id="shiftSummaryIcon" class="p-3 rounded-circle {% if cash_drawer and cash_drawer.status == 'open' %}bg-success bg-opacity-10{% else %}bg-danger bg-opacity-10{% endif %}">
-                            <i class="fas {% if cash_drawer and cash_drawer.status == 'open' %}fa-play-circle text-success{% else %}fa-pause-circle text-danger{% endif %} fs-4"></i>
+                        <div id="shiftSummaryIcon" class="p-3 rounded-circle @if($cash_drawer && $cash_drawer->status == 'open') bg-success bg-opacity-10 @else bg-danger bg-opacity-10 @endif">
+                            <i class="fas @if($cash_drawer && $cash_drawer->status == 'open') fa-play-circle text-success @else fa-pause-circle text-danger @endif fs-4"></i>
                         </div>
                     </div>
                 </div>
@@ -314,7 +320,7 @@
                     <div class="d-flex justify-content-between align-items-center mb-2">
                         <span class="text-muted small">Waktu Mulai</span>
                         <span id="startTimeDisplay" class="fw-medium small">
-                            {% if cash_drawer and cash_drawer.opened_at_time %}{{ cash_drawer.opened_at_time }}{% else %}-{% endif %}
+                            @if($cash_drawer && $cash_drawer->opened_at_time) {{ $cash_drawer->opened_at_time }} @else - @endif
                         </span>
                     </div>
                     <div class="d-flex justify-content-between align-items-center mb-2">
@@ -324,27 +330,27 @@
                     <div class="d-flex justify-content-between align-items-center">
                         <span class="text-muted small">Durasi</span>
                        <p id="summaryDurationDisplay" class="fw-medium small">
-    {% if cash_drawer and cash_drawer.duration_display %}
-        {{ cash_drawer.duration_display }}
-    {% else %}
+    @if($cash_drawer && $cash_drawer->duration_display)
+        {{ $cash_drawer->duration_display }}
+    @else
         -
-    {% endif %}
+    @endif
 </p>
                     </div>
                 </div>
                 
                 <!-- Button Tutup Shift - Hanya aktif saat shift berjalan -->
-                {% if cash_drawer and cash_drawer.status == 'open' %}
+                @if($cash_drawer && $cash_drawer->status == 'open')
                 <button id="closeShiftBtn" 
                         class="btn btn-danger w-100 mt-4"
                         onclick="openCloseShiftModal()">
                     <i class="fas fa-stop-circle me-2"></i> Tutup Shift
                 </button>
-                {% else %}
+                @else
                 <button class="btn btn-secondary w-100 mt-4" disabled>
                     <i class="fas fa-stop-circle me-2"></i> Tutup Shift
                 </button>
-                {% endif %}
+                @endif
             </div>
         </div>
     </div>
@@ -368,8 +374,7 @@
                                placeholder="0" value="100000" min="0" step="1000">
                     </div>
                     <div class="form-text small">
-                        <i class="fas fa-info-circle me-1"></i>
-                        Masukkan jumlah uang tunai di kasir saat ini
+                        <i class="fas fa-info-circle me-1"></i> Masukkan jumlah uang tunai di kasir saat ini
                     </div>
                 </div>
                 
@@ -379,7 +384,7 @@
                         <div>
                             <p class="mb-1 fw-medium small">Informasi Shift</p>
                             <div class="small">
-                                <p class="mb-1">• Kasir: <span class="fw-medium">{{ user.username }}</span></p>
+                                <p class="mb-1">• Kasir: <span class="fw-medium">{{ $user->username ?? auth()->user()->username }}</span></p>
                                 <p class="mb-1">• Shift #: <span class="fw-medium" id="modalShiftNumber">1</span></p>
                                 <p class="mb-0">• Waktu Mulai: <span class="fw-medium" id="currentTimeDisplay">-</span> (Waktu)</p>
                             </div>
@@ -438,8 +443,7 @@
                             <span class="fw-bold text-primary">$ <span id="modalClosingBalance">0</span></span>
                         </div>
                         <p class="small text-muted mt-1">
-                            <i class="fas fa-info-circle me-1"></i>
-                            Saldo akhir = Saldo Awal + Total Penjualan
+                            <i class="fas fa-info-circle me-1"></i> Saldo akhir = Saldo Awal + Total Penjualan
                         </p>
                     </div>
                     <div class="border-top pt-2 mt-2">
@@ -463,9 +467,9 @@
         </div>
     </div>
 </div>
-{% endblock %}
+@endsection
 
-{% block scripts %}
+@push('scripts')
 <script>
 // ==================== FUNGSI UTILITAS WAKTU TIMOR-LESTE ====================
 const TimeUtils = {
@@ -1204,6 +1208,7 @@ async function confirmStartShift() {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
             },
             body: JSON.stringify({
                 opening_balance: initialCash
@@ -1249,6 +1254,7 @@ async function confirmCloseShift() {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
             },
             body: JSON.stringify({
                 actual_cash: closingBalance,
@@ -1462,4 +1468,5 @@ td[data-utc-time] {
     font-weight: 500;
 }
 </style>
-@endsection
+@endpush
+```

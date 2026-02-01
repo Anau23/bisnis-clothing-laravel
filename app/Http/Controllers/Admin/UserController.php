@@ -26,10 +26,10 @@ class UserController extends Controller
         ]);
 
         User::create([
-            'username' => $request->username,
-            'email'    => $request->email,
-            'password' => Hash::make($request->password),
-            'role'     => $request->role,
+            'username'      => $request->username,
+            'email'         => $request->email,
+            'password_hash' => Hash::make($request->password),
+            'role'          => $request->role,
         ]);
 
         return redirect()

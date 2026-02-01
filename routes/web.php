@@ -2,11 +2,12 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\AdminController;
-use App\Http\Controllers\Cashier\CashierController;
 use App\Http\Controllers\Admin\CashDrawerController;
 use App\Http\Controllers\Admin\SupplierController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Cashier\CashierController;
 
 /*
 |--------------------------------------------------------------------------
@@ -18,24 +19,18 @@ Route::get('/', [AuthController::class, 'showLogin'])->name('login');
 Route::get('/login', [AuthController::class, 'showLogin']);
 Route::post('/login', [AuthController::class, 'login'])->name('login.process');
 
-// //Route::get('/logout', function () {
-//     Auth::logout();
-//     request()->session()->invalidate();
-//     request()->session()->regenerateToken();
-
-//     return redirect('/login');
-// });
 Route::post('/logout', [AuthController::class, 'logout'])
     ->name('logout');
-
 
 
 /*
 |--------------------------------------------------------------------------
 | ADMIN ROUTES
 |--------------------------------------------------------------------------
-| Role: admin
 | Middleware: auth + admin
+| URL: /admin/...
+| Route name: admin.*
+|--------------------------------------------------------------------------
 */
 
 Route::middleware(['auth', 'admin'])
@@ -43,19 +38,24 @@ Route::middleware(['auth', 'admin'])
     ->name('admin.')
     ->group(function () {
 
-        Route::get('/dashboard', [AdminController::class, 'dashboard'])
+        Route::get('/dashboard', [DashboardController::class, 'index'])
             ->name('dashboard');
-        Route::get('/dashboard/data', [AdminController::class, 'dashboardData'])
-            ->name('dashboard.data');
 
+        //Route::get('/dashboard/filter', [DashboardController::class, 'filter'])
+        //    ->name('dashboard.filter');
+        Route::get('/dashboard/filter', [DashboardController::class, 'filter']);
+
+        // Items & Categories
         Route::get('/items', [AdminController::class, 'items'])
             ->name('items');
 
         Route::get('/categories', [AdminController::class, 'categories'])
             ->name('categories');
 
+        // Inventory
         Route::get('/inventory/purchase', [AdminController::class, 'purchase'])
-        ->name('inventory.purchase.index');
+            ->name('inventory.purchase.index');
+
 
         Route::get('/inventory/summary', [AdminController::class, 'summary'])
             ->name('inventory.summary');
@@ -65,31 +65,33 @@ Route::middleware(['auth', 'admin'])
 
         Route::get('/inventory/supplier/create', [SupplierController::class, 'create'])
             ->name('inventory.supplier.create');
-        Route::get('/admin/reports/export-excel', function () {
+
+        // Reports
+        Route::get('/reports/export-excel', function () {
             return response('Export Excel belum diimplementasikan', 200);
-        })->name('admin.reports.export');
+        })->name('reports.export');
 
-
-
+        // Cash Drawer
         Route::get('/cashdrawer', [CashDrawerController::class, 'index'])
-        ->name('cashdrawer');
+            ->name('cashdrawer');
 
+        // Users
         Route::get('/users', [UserController::class, 'index'])
             ->name('users');
 
         Route::post('/users', [UserController::class, 'store'])
-        ->name('users.store');
-
+            ->name('users.store');
     });
-
 
 
 /*
 |--------------------------------------------------------------------------
 | CASHIER ROUTES
 |--------------------------------------------------------------------------
-| Role: cashier
 | Middleware: auth
+| URL: /cashier/...
+| Route name: cashier.*
+|--------------------------------------------------------------------------
 */
 
 Route::middleware(['auth'])
@@ -108,7 +110,7 @@ Route::middleware(['auth'])
 
         Route::get('/products', [CashierController::class, 'products'])
             ->name('products');
-        Route::get('/cashier/activity', [CashierController::class, 'cashier.dashboard'])
-            ->name('cashier.activity');
 
+        Route::get('/activity', [CashierController::class, 'activity'])
+            ->name('activity');
     });

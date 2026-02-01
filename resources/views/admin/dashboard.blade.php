@@ -739,6 +739,29 @@
         background: rgba(255, 255, 255, 0.2);
         transform: scale(1.05);
     }
+
+    /* ==== FORCE DASHBOARD STYLE (ANTI OVERRIDE) ==== */
+
+    .data-card {
+        background: white !important;
+        border-radius: 15px !important;
+        overflow: hidden !important;
+    }
+
+    .data-card .card-header {
+        background: linear-gradient(90deg, #3498db, #2980b9) !important;
+        color: white !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 10px !important;
+    }
+
+    .data-card .card-header h3 {
+        color: white !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 10px !important;
+    }
 </style>
 @endsection
 
@@ -787,8 +810,10 @@
 
     <div id="custom-date-range" style="display:none">
         <div class="date-range-picker">
-            <input type="date" id="start-date" value="{{ $start_date ?? '' }}">
-            <input type="date" id="end-date" value="{{ $end_date ?? '' }}">
+            {{-- <input type="date" id="start-date" value="{{ $start_date ?? '' }}"> --}}
+            <input type="date" id="start-date" value="">
+            {{-- <input type="date" id="end-date" value="{{ $end_date ?? '' }}"> --}}
+            <input type="date" id="end-date" value="">
         </div>
         <button class="apply-filter-btn" onclick="applyCustomFilter()">Apply Filter</button>
     </div>
@@ -797,7 +822,10 @@
 <!-- STATS -->
 <div class="stats-container">
     <div class="stat-card revenue">
-        <div class="stat-value" id="revenue-value">Loading...</div>
+        <div class="stat-value" id="revenue-value">
+            {{-- {{ number_format($stats['revenue'], 2) }} --}}
+            Loading...
+        </div>
         <div class="stat-label">Total Revenue</div>
     </div>
 
@@ -847,45 +875,44 @@
 @endsection
 
 @section('scripts')
+<!-- Load Chart.js Library -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-function exportExcelReport() {
-    let url = `/admin/reports/export-excel?period=${currentPeriod}`;
+<!-- Main Dashboard Script Block -->
+<script>
+    /* ================= EXPORT FUNCTION ================= */
+    function exportExcelReport() {
+        let url = `/admin/reports/export-excel?period=${currentPeriod}`;
 
-    if (currentPeriod === 'custom') {
-        const startDate = document.getElementById('start-date').value;
-        const endDate = document.getElementById('end-date').value;
+        if (currentPeriod === 'custom') {
+            const startDate = document.getElementById('start-date').value;
+            const endDate = document.getElementById('end-date').value;
 
-        if (!startDate || !endDate) {
-            alert('Please select start & end date');
-            return;
+            if (!startDate || !endDate) {
+                alert('Please select start & end date');
+                return;
+            }
+            url += `&start_date=${startDate}&end_date=${endDate}`;
         }
-        url += `&start_date=${startDate}&end_date=${endDate}`;
+
+        window.location.href = url;
     }
 
-    window.location.href = url;
-}
-</script>
+    /* ================= TIMOR LESTE TIMEZONE HELPER ================= */
+    function convertToTimorLeste(dateString) {
+        if (!dateString) return null;
 
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) return null;
 
-<script>
-/* ================= TIMOR LESTE TIMEZONE HELPER ================= */
-function convertToTimorLeste(dateString) {
-    if (!dateString) return null;
+        // Timor-Leste = UTC +9
+        const TL_OFFSET = 9 * 60; // minutes
+        const localOffset = date.getTimezoneOffset(); // browser offset (WIB = -420)
 
-    const date = new Date(dateString);
-    if (isNaN(date.getTime())) return null;
+        return new Date(date.getTime() + (TL_OFFSET + localOffset) * 60000);
+    }
 
-    // Timor-Leste = UTC +9
-    const TL_OFFSET = 9 * 60; // minutes
-    const localOffset = date.getTimezoneOffset(); // browser offset (WIB = -420)
-
-    return new Date(date.getTime() + (TL_OFFSET + localOffset) * 60000);
-}
-</script>
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
+    /* ================= MAIN DASHBOARD LOGIC ================= */
     // Dashboard JavaScript - REAL DATA 100%
     let revenueProfitChart = null;
     let costProfitChart = null;
@@ -984,8 +1011,8 @@ function convertToTimorLeste(dateString) {
             resetStatsLoading();
             
             // API URL
-            let apiUrl = `{{ route('admin.dashboard.data') }}?period=${period}&_t=${Date.now()}`;
-            
+            let apiUrl = `/admin/dashboard/filter?period=${period}&_t=${Date.now()}`;
+
             // For custom period, add date parameters
             if (period === 'custom') {
                 const startDate = document.getElementById('start-date').value;
@@ -1254,7 +1281,8 @@ function convertToTimorLeste(dateString) {
         showLoading(true, `Loading data from ${startDate} to ${endDate}...`);
         
         try {
-            const apiUrl = `{{ route('admin.dashboard.data') }}?period=custom...`;
+            const apiUrl = `/admin/dashboard/filter?period=custom&start_date=${startDate}&end_date=${endDate}&_t=${Date.now()}`;
+            
             console.log('🌐 Custom API Request:', apiUrl);
             
             const response = await fetch(apiUrl);
@@ -1304,14 +1332,11 @@ function convertToTimorLeste(dateString) {
         // Update charts
         if (data.charts && data.charts.labels && data.charts.labels.length > 0) {
             updateCharts(data.charts);
+            hideChartErrors();
         } else {
             console.info('ℹ️ Chart data empty (valid state)');
             hideChartErrors();
-        } else {
-            hideChartErrors();
-            document.getElementById('revenue-profit-chart-empty').style.display = 'block';
         }
-
         
         // Update tables
         if (data.tables) {
@@ -1743,26 +1768,25 @@ function convertToTimorLeste(dateString) {
         }
     }
     
-   function formatTransactionDate(dateString) {
-    if (!dateString) return 'N/A';
+    function formatTransactionDate(dateString) {
+        if (!dateString) return 'N/A';
 
-    try {
-        const tlDate = convertToTimorLeste(dateString);
-        if (!tlDate) return 'N/A';
+        try {
+            const tlDate = convertToTimorLeste(dateString);
+            if (!tlDate) return 'N/A';
 
-        const day = String(tlDate.getDate()).padStart(2, '0');
-        const month = String(tlDate.getMonth() + 1).padStart(2, '0');
-        const year = tlDate.getFullYear();
-        const hours = String(tlDate.getHours()).padStart(2, '0');
-        const minutes = String(tlDate.getMinutes()).padStart(2, '0');
+            const day = String(tlDate.getDate()).padStart(2, '0');
+            const month = String(tlDate.getMonth() + 1).padStart(2, '0');
+            const year = tlDate.getFullYear();
+            const hours = String(tlDate.getHours()).padStart(2, '0');
+            const minutes = String(tlDate.getMinutes()).padStart(2, '0');
 
-        return `${day}/${month}/${year} ${hours}:${minutes}`;
-    } catch (err) {
-        console.error('Date format error:', err);
-        return 'N/A';
+            return `${day}/${month}/${year} ${hours}:${minutes}`;
+        } catch (err) {
+            console.error('Date format error:', err);
+            return 'N/A';
+        }
     }
-}
-
     
     function getStatusInfo(status) {
         const statusMap = {

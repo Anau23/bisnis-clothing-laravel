@@ -5,14 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'Dili Society')</title>
 
-    <!-- Bootstrap 5 CSS -->
+    <!-- TEST LAYOUT AKTIF -->
+
+    <!-- Bootstrap 5 (sama dengan Flask) -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+
     <!-- Bootstrap Icons -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Font Awesome 6.5.1 (WAJIB) -->
+    <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="{{ asset('images/logobg.png') }}">
@@ -699,6 +707,13 @@
         .dropdown-item.active {
             background: var(--royal-blue);
             color: white;
+        }
+
+        .fas,
+        .fa-solid {
+            font-family: "Font Awesome 6 Free" !important;
+            font-weight: 900 !important;
+            display: inline-block !important;
         }
     </style>
 
